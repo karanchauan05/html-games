@@ -1,0 +1,122 @@
+<!-- Save as pong.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pong</title>
+  <style>
+    body {
+      margin: 0;
+      background: #002244; /* Contrasting background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: black;
+      display: block;
+      box-shadow: 0 0 20px white;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pong" width="600" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("pong");
+    const ctx = canvas.getContext("2d");
+
+    const paddleWidth = 10, paddleHeight = 100;
+    const player = { x: 0, y: canvas.height / 2 - 50 };
+    const ai = { x: canvas.width - 10, y: canvas.height / 2 - 50 };
+    const ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 8,
+      speed: 4,
+      dx: 4,
+      dy: 4
+    };
+
+    function drawRect(x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    function drawCircle(x, y, r, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawNet() {
+      for (let i = 0; i < canvas.height; i += 15) {
+        drawRect(canvas.width / 2 - 1, i, 2, 10, "white");
+      }
+    }
+
+    function movePaddle(evt) {
+      const rect = canvas.getBoundingClientRect();
+      player.y = evt.clientY - rect.top - paddleHeight / 2;
+    }
+
+    function resetBall() {
+      ball.x = canvas.width / 2;
+      ball.y = canvas.height / 2;
+      ball.dx = 4 * (Math.random() > 0.5 ? 1 : -1);
+      ball.dy = 4 * (Math.random() > 0.5 ? 1 : -1);
+    }
+
+    function update() {
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      // Bounce off top/bottom
+      if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+      }
+
+      // AI Movement
+      ai.y += (ball.y - (ai.y + paddleHeight / 2)) * 0.1;
+
+      // Choose paddle based on side
+      const paddle = ball.x < canvas.width / 2 ? player : ai;
+
+      // Collision with paddle
+      if (
+        ball.x - ball.radius < paddle.x + paddleWidth &&
+        ball.x + ball.radius > paddle.x &&
+        ball.y + ball.radius > paddle.y &&
+        ball.y - ball.radius < paddle.y + paddleHeight
+      ) {
+        // Reverse and increase speed
+        ball.dx = -ball.dx * 1.05;
+        ball.dy = ball.dy * 1.05;
+        ball.x += ball.dx > 0 ? 5 : -5; // prevent sticking
+      }
+
+      // Reset ball if out of bounds
+      if (ball.x < 0 || ball.x > canvas.width) {
+        resetBall();
+      }
+    }
+
+    function draw() {
+      drawRect(0, 0, canvas.width, canvas.height, "black");
+      drawNet();
+      drawRect(player.x, player.y, paddleWidth, paddleHeight, "white");
+      drawRect(ai.x, ai.y, paddleWidth, paddleHeight, "white");
+      drawCircle(ball.x, ball.y, ball.radius, "white");
+    }
+
+    function game() {
+      update();
+      draw();
+    }
+
+    canvas.addEventListener("mousemove", movePaddle);
+    setInterval(game, 1000 / 60);
+  </script>
+</body>
+</html>

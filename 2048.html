@@ -1,0 +1,139 @@
+<!-- Save as 2048.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>2048 Game</title>
+  <style>
+    body {
+      background: #faf8ef;
+      font-family: Arial;
+      text-align: center;
+      margin: 0;
+      padding-top: 40px;
+    }
+    table {
+      margin: auto;
+      border-collapse: collapse;
+    }
+    td {
+      width: 80px; height: 80px;
+      background: #ccc0b3;
+      font-size: 30px;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold;
+      color: #776e65;
+      border: 5px solid #bbada0;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .new {
+      animation: pop 0.3s;
+    }
+    @keyframes pop {
+      0%   { transform: scale(0.5); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>2048</h1>
+  <p>Use arrow keys to play</p>
+  <table id="grid"></table>
+
+  <script>
+    const size = 4;
+    let board = [], newTile = [];
+
+    function initBoard() {
+      board = Array.from({ length: size }, () => Array(size).fill(0));
+      addRandom();
+      addRandom();
+      draw();
+    }
+
+    function addRandom() {
+      const options = [];
+      for (let i = 0; i < size; i++)
+        for (let j = 0; j < size; j++)
+          if (board[i][j] === 0) options.push({ x: i, y: j });
+      if (options.length > 0) {
+        const { x, y } = options[Math.floor(Math.random() * options.length)];
+        board[x][y] = Math.random() > 0.1 ? 2 : 4;
+        newTile = [x, y];
+      }
+    }
+
+    function draw() {
+      const table = document.getElementById('grid');
+      table.innerHTML = '';
+      for (let i = 0; i < size; i++) {
+        const row = table.insertRow();
+        for (let j = 0; j < size; j++) {
+          const cell = row.insertCell();
+          if (board[i][j] !== 0) {
+            cell.textContent = board[i][j];
+            if (newTile[0] === i && newTile[1] === j) {
+              cell.classList.add("new");
+            }
+            cell.style.background = getColor(board[i][j]);
+          } else {
+            cell.textContent = '';
+          }
+        }
+      }
+    }
+
+    function getColor(value) {
+      const colors = {
+        2: "#eee4da", 4: "#ede0c8", 8: "#f2b179",
+        16: "#f59563", 32: "#f67c5f", 64: "#f65e3b",
+        128: "#edcf72", 256: "#edcc61", 512: "#edc850",
+        1024: "#edc53f", 2048: "#edc22e"
+      };
+      return colors[value] || "#3c3a32";
+    }
+
+    function moveLeft() {
+      let moved = false;
+      for (let i = 0; i < size; i++) {
+        let row = board[i].filter(val => val);
+        for (let j = 0; j < row.length - 1; j++) {
+          if (row[j] === row[j + 1]) {
+            row[j] *= 2;
+            row[j + 1] = 0;
+            moved = true;
+          }
+        }
+        row = row.filter(val => val);
+        while (row.length < size) row.push(0);
+        if (board[i].toString() !== row.toString()) moved = true;
+        board[i] = row;
+      }
+      if (moved) {
+        addRandom();
+        draw();
+      }
+    }
+
+    function rotateMatrixClockwise() {
+      const newBoard = board.map((_, i) => board.map(row => row[i]).reverse());
+      board = newBoard;
+    }
+
+    function handleInput(e) {
+      const key = e.key;
+      let rotations = 0;
+      if (key === "ArrowUp") rotations = 1;
+      if (key === "ArrowRight") rotations = 2;
+      if (key === "ArrowDown") rotations = 3;
+
+      for (let i = 0; i < rotations; i++) rotateMatrixClockwise();
+      moveLeft();
+      for (let i = 0; i < (4 - rotations) % 4; i++) rotateMatrixClockwise();
+    }
+
+    document.addEventListener("keydown", handleInput);
+    initBoard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!-- Save as tictactoe.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic-Tac-Toe</title>
+  <style>
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      margin: 50px auto;
+      width: 315px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #eee;
+      font-size: 3em;
+      text-align: center;
+      line-height: 100px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Tic-Tac-Toe</h2>
+  <div id="board"></div>
+  <p id="status" style="text-align:center;"></p>
+
+  <script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    let cells = Array(9).fill('');
+    let currentPlayer = 'X';
+    let gameOver = false;
+
+    function renderBoard() {
+      board.innerHTML = '';
+      cells.forEach((value, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = value;
+        cell.onclick = () => makeMove(i);
+        board.appendChild(cell);
+      });
+    }
+
+    function makeMove(i) {
+      if (cells[i] === '' && !gameOver) {
+        cells[i] = currentPlayer;
+        if (checkWin()) {
+          status.textContent = `${currentPlayer} wins!`;
+          gameOver = true;
+        } else if (!cells.includes('')) {
+          status.textContent = `It's a draw!`;
+          gameOver = true;
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+        renderBoard();
+      }
+    }
+
+    function checkWin() {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return wins.some(combo => {
+        const [a,b,c] = combo;
+        return cells[a] && cells[a] === cells[b] && cells[a] === cells[c];
+      });
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
