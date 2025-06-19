@@ -39,6 +39,22 @@ A collection of classic games built using **HTML5**, **CSS**, and **JavaScript**
 
 ---
 
+### 🐍 Snakes
+- Classic retro snake game.
+- The obstacles don't despawn adding a thrill and higher difficulty.
+
+👉 Open: `snakes.js`
+
+---
+
+### 🚗 Road Rage
+- Player controls a car that needs to evade traffic.
+- A cop car is chasing so be quick and drive carefully.
+
+👉 Open: `pong.html`
+
+---
+
 ## 🚀 How to Run
 
 1. **Clone the repo:**
